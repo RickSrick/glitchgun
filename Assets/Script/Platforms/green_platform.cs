@@ -74,23 +74,23 @@ public class green_platform : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        switch (collision.tag)
+        if(collision.CompareTag("greenBullet"))
         {
-            case "Player":
-                collision.transform.SetParent(transform);
-                break;
-            case "greenBullet":
-                //add block Animation
-                isMoving = !isMoving;
-                break;
+            //add block Animation
+            isMoving = !isMoving;
         }
     }
 
-    private void OnTriggerExit2D(Collider2D collision)
+    private void OnCollisionExit2D(Collision2D collision)
     {
-        if (collision.CompareTag("Player"))
+        if (collision.gameObject.CompareTag("Player"))
         {
-            collision.transform.SetParent(null);
+            collision.gameObject.transform.SetParent(null);
         }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if(collision.gameObject.CompareTag("Player") && currentMovesSet != moveSet.rotate) collision.gameObject.transform.SetParent(transform);
     }
 }

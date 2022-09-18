@@ -32,12 +32,16 @@ public class movement : MonoBehaviour
     void Update()
     {
         float x = Input.GetAxis("Horizontal");
-        float y = Input.GetAxis("Vertical");
-        float xRaw = Input.GetAxisRaw("Horizontal");
-        float yRaw = Input.GetAxisRaw("Vertical");
 
-        Vector2 dir = new Vector2(x, y);
+        Vector2 dir = new Vector2(x, 0);
+
         Walk(dir);
+
+        if (collision.onGround)
+        {
+            wallJumped = false;
+            GetComponent<jump>().enabled = true;
+        }
 
         if (Input.GetButtonDown("Jump"))
         {
@@ -52,11 +56,17 @@ public class movement : MonoBehaviour
         if (!canMove || wallGrab) return;
         if (!wallJumped)
         {
-            rb.velocity = new Vector2(dir.x * speed, rb.velocity.y);
+            //rb.velocity = new Vector2(dir.x * speed, rb.velocity.y);
+
+            rb.AddForce(new Vector2(dir.x, 0) * speed);
+
+            if(Mathf.Abs(rb.velocity.x) > speed) { rb.velocity = new Vector2(Mathf.Sign(rb.velocity.x) * speed, rb.velocity.y); }
+
         }
         else
         {
             rb.velocity = Vector2.Lerp(rb.velocity, (new Vector2(dir.x * speed, rb.velocity.y)), wallJumpLerp * Time.deltaTime);
+
         }
     }
 
@@ -78,7 +88,7 @@ public class movement : MonoBehaviour
 
         Vector2 wallDir = collision.onRightWall ? Vector2.left : Vector2.right;
 
-        Jump((Vector2.up / 1.5f + wallDir / 1.5f), true);
+        Jump((Vector2.up + wallDir), true);
 
         wallJumped = true;
     }
