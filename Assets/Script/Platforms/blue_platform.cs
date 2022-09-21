@@ -17,7 +17,6 @@ public class blue_platform : MonoBehaviour
 
         if(collisionRb != null)
         {
-            collisionRb.velocity = Vector2.zero;
             //the force is relative to angle of the up vector of platform
             collisionRb.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
         }

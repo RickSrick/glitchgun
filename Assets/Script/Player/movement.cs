@@ -13,12 +13,14 @@ public class movement : MonoBehaviour
     public float speed = 10;
     public float wallJumpLerp = 10;
     public float jumpForce = 10;
+    public float linearDrag = 10;
 
     [Space]
     [Header("Conditions")]
     public bool canMove;
     public bool wallGrab;
     public bool wallJumped;
+    private bool changingDirection;
 
     public int side = 1;
 
@@ -34,21 +36,36 @@ public class movement : MonoBehaviour
         float x = Input.GetAxis("Horizontal");
 
         Vector2 dir = new Vector2(x, 0);
+        
+        changingDirection = (rb.velocity.x > 0f && dir.x < 0f) || (rb.velocity.x < 0f && dir.x > 0f);
 
         Walk(dir);
 
         if (collision.onGround)
         {
             wallJumped = false;
-            GetComponent<jump>().enabled = true;
+            ApplyGroundLinearDrag(dir);
         }
+        else { rb.drag = 0f; }
 
         if (Input.GetButtonDown("Jump"))
         {
+            rb.drag = 0f;
             if (collision.onGround) Jump(Vector2.up, false);
             if (collision.onWall && !collision.onGround) WallJump();
         }
 
+    }
+    private void ApplyGroundLinearDrag(Vector2 dir)
+    {
+        if (Mathf.Abs(dir.x) < 0.4f || changingDirection)
+        {
+            rb.drag = linearDrag;
+        }
+        else
+        {
+            rb.drag = 0f;
+        }
     }
 
     private void Walk(Vector2 dir)
@@ -58,7 +75,7 @@ public class movement : MonoBehaviour
         {
             //rb.velocity = new Vector2(dir.x * speed, rb.velocity.y);
 
-            rb.AddForce(new Vector2(dir.x, 0) * speed);
+            rb.AddForce(new Vector2(dir.x, 0) * speed * 2);
 
             if(Mathf.Abs(rb.velocity.x) > speed) { rb.velocity = new Vector2(Mathf.Sign(rb.velocity.x) * speed, rb.velocity.y); }
 
